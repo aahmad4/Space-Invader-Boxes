@@ -1,67 +1,65 @@
-## --Space Invaders-- ##
-## --aahmad4-- ##
+# Ali Ahmad
+# Space Invader Boxes
+
+# Importing needed libraries
 
 import pygame
+from pygame.locals import *
 import sys
 from random import shuffle
-from pygame.locals import *
 
 
-## --Colors-- ##
+# Creating variables for each color I need in an RGB Format
+#          (Red, Green, Blue)
+Gray      = (100, 100, 100)
+NavyBlue  = ( 60,  60, 100)
+White     = (255, 255, 255)
+Red       = (255,   0,   0)
+Green     = (  0, 255,   0)
+Blue      = (  0,   0, 255)
+Yellow    = (255, 255,   0)
+NearBlack = ( 19,  15,  48)
+ComBlue   = (233, 232, 255)
 
-#            R    G    B
-GRAY      = (100, 100, 100)
-NAVYBLUE  = ( 60,  60, 100)
-WHITE     = (255, 255, 255)
-RED       = (255,   0,   0)
-GREEN     = (  0, 255,   0)
-BLUE      = (  0,   0, 255)
-YELLOW    = (255, 255,   0)
-ORANGE    = (255, 128,   0)
-PURPLE    = (255,   0, 255)
-CYAN      = (  0, 255, 255)
-BLACK     = (  0,   0,   0)
-NEARBLACK = ( 19,  15,  48)
-COMBLUE   = (233, 232, 255)
 
-## Player Constants ##
+# Creating constants for the player object
 
-PLAYERWIDTH = 40
-PLAYERHEIGHT = 10
-PLAYERCOLOR = COMBLUE
-PLAYER1 = 'Player 1'
-PLAYERSPEED = 5
-PLAYERCOLOR = GREEN
+PlayerWidth = 40
+PlayerHeight = 10
+PlayerColor = ComBlue
+Player1 = 'Player 1'
+PlayerSpeed = 5
+PlayerColor = Green
 
-## Display Constants ##
+# Creating constants for the GUI
 
-GAMETITLE = 'Space Invaders!'
-DISPLAYWIDTH = 640
-DISPLAYHEIGHT = 480
-BGCOLOR = NEARBLACK
-XMARGIN = 50
-YMARGIN = 50
+GameTitle = 'Space Invaders!'
+DisplayWidth = 640
+DisplayHeight = 480
+bgColor = NearBlack
+xMargin = 50
+yMargin = 50
 
-## Bullet Constants ##
+# Creating constants for the bullet
 
-BULLETWIDTH = 5
-BULLETHEIGHT = 5
-BULLETOFFSET = 700
+BulletWidth = 5
+BulletHeight = 5
+BulletOffSet = 700
 
-## Enemy Constants ##
+# Creating constants for the enemies
 
-ENEMYWIDTH = 25
-ENEMYHEIGHT = 25
-ENEMYNAME = 'Enemy'
-ENEMYGAP = 20
-ARRAYWIDTH = 10
-ARRAYHEIGHT = 4
-MOVETIME = 1000
-MOVEX = 10
-MOVEY = ENEMYHEIGHT
-TIMEOFFSET = 300
+enemyWidth = 25
+enemyHeight = 25
+enemyName = 'Enemy'
+enemyGap = 20
+arrayWidth = 10
+arrayHeight = 4
+MoveTime = 1000
+movex = 10
+movey = enemyHeight
+timeOffset = 300
 
-                              ##
+# Defining what each key does location wise in the GUI
 
 DIRECT_DICT = {pygame.K_LEFT  : (-1),
                pygame.K_RIGHT : (1)}
@@ -69,21 +67,26 @@ DIRECT_DICT = {pygame.K_LEFT  : (-1),
 
 
 
+# Creating the player object
 
 class Player(pygame.sprite.Sprite):
+
+    # Initializing player
+
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.width = PLAYERWIDTH
-        self.height = PLAYERHEIGHT
+        self.width = PlayerWidth
+        self.height = PlayerHeight
         self.image = pygame.Surface((self.width, self.height))
-        self.color = PLAYERCOLOR
+        self.color = PlayerColor
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
-        self.name = PLAYER1
-        self.speed = PLAYERSPEED
+        self.name = Player1
+        self.speed = PlayerSpeed
         self.vectorx = 0
 
-    
+    # Defining player movements based on keys hit
+
     def update(self, keys, *args):
         for key in DIRECT_DICT:
             if keys[key]:
@@ -92,18 +95,23 @@ class Player(pygame.sprite.Sprite):
         self.checkForSide()
         self.image.fill(self.color)
 
+    # Making sure player does not go past the display on either end
 
     def checkForSide(self):
-        if self.rect.right > DISPLAYWIDTH:
-            self.rect.right = DISPLAYWIDTH
+        if self.rect.right > DisplayWidth:
+            self.rect.right = DisplayWidth
             self.vectorx = 0
         elif self.rect.left < 0:
             self.rect.left = 0
             self.vectorx = 0
 
 
+# Creating the box object 
 
 class Blocker(pygame.sprite.Sprite):
+
+    # Initializing object
+
     def __init__(self, side, color, row, column):
         pygame.sprite.Sprite.__init__(self)
         self.width = side
@@ -117,12 +125,16 @@ class Blocker(pygame.sprite.Sprite):
         self.column = column
 
 
+# Creating the bullet object
 
 class Bullet(pygame.sprite.Sprite):
+
+    # Initializing object
+
     def __init__(self, rect, color, vectory, speed):
         pygame.sprite.Sprite.__init__(self)
-        self.width = BULLETWIDTH
-        self.height = BULLETHEIGHT
+        self.width = BulletWidth
+        self.height = BulletHeight
         self.color = color
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill(self.color)
@@ -133,6 +145,7 @@ class Bullet(pygame.sprite.Sprite):
         self.vectory = vectory
         self.speed = speed
     
+    # Defining a kill
 
     def update(self, *args):
         self.oldLocation = (self.rect.x, self.rect.y)
@@ -145,13 +158,16 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
         
+# Creating the enemy object
 
 class Enemy(pygame.sprite.Sprite):
     
+    # Initializing object
+
     def __init__(self, row, column):
         pygame.sprite.Sprite.__init__(self)
-        self.width = ENEMYWIDTH
-        self.height = ENEMYHEIGHT
+        self.width = enemyWidth
+        self.height = enemyHeight
         self.row = row
         self.column = column
         self.image = self.setImage()
@@ -159,24 +175,27 @@ class Enemy(pygame.sprite.Sprite):
         self.name = 'enemy'
         self.vectorx = 1
         self.moveNumber = 0
-        self.moveTime = MOVETIME
-        self.timeOffset = row * TIMEOFFSET
+        self.MoveTime = MoveTime
+        self.timeOffset = row * timeOffset
         self.timer = pygame.time.get_ticks() - self.timeOffset
 
 
+    # Defining where each enemy goes
+
     def update(self, keys, currentTime):
-        if currentTime - self.timer > self.moveTime:
+        if currentTime - self.timer > self.MoveTime:
             if self.moveNumber < 6:
-                self.rect.x += MOVEX * self.vectorx
+                self.rect.x += movex * self.vectorx
                 self.moveNumber += 1
             elif self.moveNumber >= 6:
                 self.vectorx *= -1
                 self.moveNumber = 0
-                self.rect.y += MOVEY
-                if self.moveTime > 100:
-                    self.moveTime -= 50
+                self.rect.y += movey
+                if self.MoveTime > 100:
+                    self.MoveTime -= 50
             self.timer = currentTime
 
+    # Setting each alien image
 
     def setImage(self):
         if self.row == 0:
@@ -210,6 +229,7 @@ class Text(object):
         surface.blit(self.surface, self.rect)
 
 
+# This is where the main code runs
 
 class App(object):
     
@@ -224,27 +244,29 @@ class App(object):
         self.playIntroSound = True
 
 
+    # Create login screen
+
     def resetGame(self):
         self.gameStart = True
         self.needToMakeEnemies = True
         
         self.introMessage1 = Text('orena.ttf', 25,
                                  'Welcome to Space Invaders!',
-                                 GREEN, self.displayRect,
+                                 Green, self.displayRect,
                                  self.displaySurf)
         self.introMessage2 = Text('orena.ttf', 20,
                                   'Press Any Key to Continue',
-                                  GREEN, self.displayRect,
+                                  Green, self.displayRect,
                                   self.displaySurf)
         self.introMessage2.rect.top = self.introMessage1.rect.bottom + 5
 
         self.gameOverMessage = Text('orena.ttf', 25,
-                                    'GAME OVER', GREEN,
+                                    'GAME OVER', Green,
                                     self.displayRect, self.displaySurf)
         
         self.player = self.makePlayer()
         self.bullets = pygame.sprite.Group()
-        self.greenBullets = pygame.sprite.Group()
+        self.GreenBullets = pygame.sprite.Group()
         self.blockerGroup1 = self.makeBlockers(0)
         self.blockerGroup2 = self.makeBlockers(1)
         self.blockerGroup3 = self.makeBlockers(2)
@@ -265,13 +287,12 @@ class App(object):
         
 
 
-
     def makeBlockers(self, number=1):
         blockerGroup = pygame.sprite.Group()
         
         for row in range(5):
             for column in range(7):
-                blocker = Blocker(10, GREEN, row, column)
+                blocker = Blocker(10, Green, row, column)
                 blocker.rect.x = 50 + (150 * number) + (column * blocker.width)
                 blocker.rect.y = 375 + (row * blocker.height)
                 blockerGroup.add(blocker)
@@ -286,19 +307,19 @@ class App(object):
 
 
     def checkForEnemyBullets(self):
-        redBulletsGroup = pygame.sprite.Group()
+        RedBulletsGroup = pygame.sprite.Group()
 
         for bullet in self.bullets:
-            if bullet.color == RED:
-                redBulletsGroup.add(bullet)
+            if bullet.color == Red:
+                RedBulletsGroup.add(bullet)
 
-        for bullet in redBulletsGroup:
+        for bullet in RedBulletsGroup:
             if pygame.sprite.collide_rect(bullet, self.player):
-                if self.player.color == GREEN:
-                    self.player.color = YELLOW
-                elif self.player.color == YELLOW:
-                    self.player.color = RED
-                elif self.player.color == RED:
+                if self.player.color == Green:
+                    self.player.color = Yellow
+                elif self.player.color == Yellow:
+                    self.player.color = Red
+                elif self.player.color == Red:
                     self.gameOver = True
                     self.gameOverTime = pygame.time.get_ticks()
                 bullet.kill()
@@ -306,8 +327,8 @@ class App(object):
 
 
     def shootEnemyBullet(self, rect):
-        if (pygame.time.get_ticks() - self.enemyBulletTimer) > BULLETOFFSET:
-            self.bullets.add(Bullet(rect, RED, 1, 5))
+        if (pygame.time.get_ticks() - self.enemyBulletTimer) > BulletOffSet:
+            self.bullets.add(Bullet(rect, Red, 1, 5))
             self.allSprites.add(self.bullets)
             self.enemyBulletTimer = pygame.time.get_ticks()
 
@@ -318,7 +339,6 @@ class App(object):
         for enemy in self.enemies:
             columnList.append(enemy.column)
 
-        #get rid of duplicate columns
         columnSet = set(columnList)
         columnList = list(columnSet)
         shuffle(columnList)
@@ -343,10 +363,10 @@ class App(object):
     
 
     def makeScreen(self):
-        pygame.display.set_caption(GAMETITLE)
-        displaySurf = pygame.display.set_mode((DISPLAYWIDTH, DISPLAYHEIGHT))
+        pygame.display.set_caption(GameTitle)
+        displaySurf = pygame.display.set_mode((DisplayWidth, DisplayHeight))
         displayRect = displaySurf.get_rect()
-        displaySurf.fill(BGCOLOR)
+        displaySurf.fill(bgColor)
         displaySurf.convert()
 
         return displaySurf, displayRect
@@ -355,7 +375,6 @@ class App(object):
 
     def makePlayer(self):
         player = Player()
-        ##Place the player centerx and five pixels from the bottom
         player.rect.centerx = self.displayRect.centerx
         player.rect.bottom = self.displayRect.bottom - 5
 
@@ -366,11 +385,11 @@ class App(object):
     def makeEnemies(self):
         enemies = pygame.sprite.Group()
         
-        for row in range(ARRAYHEIGHT):
-            for column in range(ARRAYWIDTH):
+        for row in range(arrayHeight):
+            for column in range(arrayWidth):
                 enemy = Enemy(row, column)
-                enemy.rect.x = XMARGIN + (column * (ENEMYWIDTH + ENEMYGAP))
-                enemy.rect.y = YMARGIN + (row * (ENEMYHEIGHT + ENEMYGAP))
+                enemy.rect.x = xMargin + (column * (enemyWidth + enemyGap))
+                enemy.rect.y = yMargin + (row * (enemyHeight + enemyGap))
                 enemies.add(enemy)
 
         return enemies
@@ -384,10 +403,10 @@ class App(object):
                 self.terminate()
 
             elif event.type == KEYDOWN:
-                if event.key == K_SPACE and len(self.greenBullets) < 1:
-                    bullet = Bullet(self.player.rect, GREEN, -1, 20)
-                    self.greenBullets.add(bullet)
-                    self.bullets.add(self.greenBullets)
+                if event.key == K_SPACE and len(self.GreenBullets) < 1:
+                    bullet = Bullet(self.player.rect, Green, -1, 20)
+                    self.GreenBullets.add(bullet)
+                    self.bullets.add(self.GreenBullets)
                     self.allSprites.add(self.bullets)
                     self.laserSound.play()
                 elif event.key == K_ESCAPE:
@@ -421,14 +440,14 @@ class App(object):
         self.checkForEnemyBullets()
         pygame.sprite.groupcollide(self.bullets, self.enemies, True, True)
         pygame.sprite.groupcollide(self.enemies, self.allBlockers, False, True)
-        self.collide_green_blockers()
-        self.collide_red_blockers()
+        self.collide_Green_blockers()
+        self.collide_Red_blockers()
         
 
         
-    def collide_green_blockers(self):
-        for bullet in self.greenBullets:
-            casting = Bullet(self.player.rect, GREEN, -1, 20)
+    def collide_Green_blockers(self):
+        for bullet in self.GreenBullets:
+            casting = Bullet(self.player.rect, Green, -1, 20)
             casting.rect = bullet.rect.copy()
             for pixel in range(bullet.speed):
                 hit = pygame.sprite.spritecollideany(casting,self.allBlockers)
@@ -439,10 +458,10 @@ class App(object):
                 casting.rect.y -= 1
 
 
-    def collide_red_blockers(self):
-        reds = (shot for shot in self.bullets if shot.color == RED)
-        red_bullets = pygame.sprite.Group(reds)
-        pygame.sprite.groupcollide(red_bullets, self.allBlockers, True, True)
+    def collide_Red_blockers(self):
+        Reds = (shot for shot in self.bullets if shot.color == Red)
+        Red_bullets = pygame.sprite.Group(Reds)
+        pygame.sprite.groupcollide(Red_bullets, self.allBlockers, True, True)
 
     
 
@@ -457,7 +476,7 @@ class App(object):
 
         else:
             for enemy in self.enemies:
-                if enemy.rect.bottom > DISPLAYHEIGHT:
+                if enemy.rect.bottom > DisplayHeight:
                     self.gameOver = True
                     self.gameStart = False
                     self.beginGame = False
@@ -476,7 +495,7 @@ class App(object):
             if self.gameStart:
                 self.resetGame()
                 self.gameOver = False
-                self.displaySurf.fill(BGCOLOR)
+                self.displaySurf.fill(bgColor)
                 self.introMessage1.draw(self.displaySurf)
                 self.introMessage2.draw(self.displaySurf)
                 self.gameStartInput()
@@ -484,7 +503,7 @@ class App(object):
 
             elif self.gameOver:
                 self.playIntroSound = True
-                self.displaySurf.fill(BGCOLOR)
+                self.displaySurf.fill(bgColor)
                 self.gameOverMessage.draw(self.displaySurf)
                 #prevent users from exiting the GAME OVER screen
                 #too quickly
@@ -504,7 +523,7 @@ class App(object):
                         
                 else:    
                     currentTime = pygame.time.get_ticks()
-                    self.displaySurf.fill(BGCOLOR)
+                    self.displaySurf.fill(bgColor)
                     self.checkInput()
                     self.allSprites.update(self.keys, currentTime)
                     if len(self.enemies) > 0:
